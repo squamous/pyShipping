@@ -51,7 +51,7 @@ def packstrip(bin, p):
     s = []                # strip
     r = []                # rest
     ss = sw = sl = 0      # stripsize
-    bs = bin.heigth       # binsize
+    bs = bin.height       # binsize
     sapp = s.append       # speedup
     rapp = r.append       # speedup
     ppop = p.pop          # speedup
@@ -97,18 +97,18 @@ def packlayer(bin, packages):
 def packbin(bin, packages):
     packages.sort()
     layers = []
-    contentheigth = 0
+    contentheight = 0
     contentx = 0
     contenty = 0
     binsize = bin.length
     while packages:
         layer, (sizex, sizey, layersize), rest = packlayer(bin, packages)
-        if contentheigth + layersize <= binsize:
+        if contentheight + layersize <= binsize:
             packages = rest
             if not layer:
                 # we were not able to pack anything
                 break
-            contentheigth += layersize
+            contentheight += layersize
             contentx = max([contentx, sizex])
             contenty = max([contenty, sizey])
             layers.extend(layer)
@@ -116,7 +116,7 @@ def packbin(bin, packages):
             # Next Bin please
             packages = layer + rest
             break
-    return layers, (contentx, contenty, contentheigth), packages
+    return layers, (contentx, contenty, contentheight), packages
 
 
 def packit(bin, originalpackages):
