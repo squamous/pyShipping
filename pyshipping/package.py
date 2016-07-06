@@ -15,7 +15,7 @@ import unittest
 class Package(object):
     """Represents a package as used in cargo/shipping aplications."""
 
-    def __init__(self, size, weight=0, nosort=False):
+    def __init__(self, size, weight=0, nosort=True):
         """Generates a new Package object.
 
         The size can be given as an list of integers or an string where the
