@@ -39,6 +39,8 @@ Copyright (c) 2010 HUDORA. All rights reserved.
 
 import time
 import random
+from itertools import permutations
+bin_package_dimensions = []
 
 
 def packstrip(bin, p):
@@ -116,6 +118,8 @@ def packbin(bin, packages):
             # Next Bin please
             packages = layer + rest
             break
+    global bin_package_dimensions
+    bin_package_dimensions.append((contentx, contenty, contentheight))
     return layers, (contentx, contenty, contentheight), packages
 
 
@@ -132,28 +136,6 @@ def packit(bin, originalpackages):
     # we now have a result, try to get a better result by rotating some bins
 
     return packedbins, rest
-
-
-# In newer Python versions these van be imported:
-# from itertools import permutations
-def product(*args, **kwds):
-    # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
-    # product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
-    pools = map(tuple, args) * kwds.get('repeat', 1)
-    result = [[]]
-    for pool in pools:
-        result = [x + [y] for x in result for y in pool]
-    for prod in result:
-        yield tuple(prod)
-
-
-def permutations(iterable, r=None):
-    pool = tuple(iterable)
-    n = len(pool)
-    r = n if r is None else r
-    for indices in product(range(n), repeat=r):
-        if len(set(indices)) == r:
-            yield tuple(pool[i] for i in indices)
 
 
 class Timeout(Exception):
@@ -208,7 +190,15 @@ def binpack(packages, bin=None, iterlimit=5000):
     packed because they are to big."""
     if not bin:
         bin = Package("600x400x400")
-    return allpermutations(packages, bin, iterlimit)
+    global bin_package_dimensions
+    bins, rest = allpermutations(packages, bin, iterlimit)
+    bin_package_dimensions = bin_package_dimensions[len(bin_package_dimensions) - len(bins) - 1:]
+    try:
+        while True:
+            bin_package_dimensions.remove((0, 0, 0))
+    except ValueError:
+        pass
+    return bins, rest, bin_package_dimensions
 
 
 def test():
