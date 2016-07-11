@@ -120,7 +120,9 @@ def packbin(bin, packages):
             packages = layer + rest
             break
     global bin_package_dimensions
-    bin_package_dimensions.append((contentx, contenty, contentheight))
+    layers_weight = sum([item.weight for item in layers])
+    bin_package_dimensions.append(Package((contentx, contenty, contentheight), layers_weight))
+    #import ipdb; ipdb.set_trace()
     return layers, (contentx, contenty, contentheight), packages
 
 
@@ -150,7 +152,8 @@ def allpermutations_helper(permuted, todo, maxcounter, callback, bin, bestpack, 
         others = todo[1:]
         thispackage = todo[0]
         for dimensions in set(permutations((thispackage[0], thispackage[1], thispackage[2]))):
-            thispackage = Package(dimensions, nosort=True)
+            #import ipdb; ipdb.set_trace()
+            thispackage = Package(dimensions, thispackage.weight or 0, nosort=True)
             if thispackage in bin:
                 counter = allpermutations_helper(permuted + [thispackage], others, maxcounter, callback,
                                                  bin, bestpack, counter)
@@ -196,39 +199,37 @@ def binpack(packages, bin=None, iterlimit=5000):
     bin_package_dimensions = bin_package_dimensions[len(bin_package_dimensions) - len(bins):]
     try:
         while True:
-            bin_package_dimensions.remove((0, 0, 0))
+            bin_package_dimensions.remove(Package((0, 0, 0)))
     except ValueError:
         pass
     return bins, rest, bin_package_dimensions
 
 
 def test():
-    fd = open('testdata.txt')
-    vorher = 0
-    nachher = 0
-    start = time.time()
-    for line in fd:
-        packages = [Package(pack) for pack in line.strip().split()]
-        if not packages:
-            continue
-        bins, rest = binpack(packages)
-        if rest:
-            print "invalid data", rest, line
-        else:
-            vorher += len(packages)
-            nachher += len(bins)
-    print time.time() - start,
-    print vorher, nachher, float(nachher) / vorher * 100
+    import random
+    from pprint import pprint as pp
+    test_dimensions = '20x60x20 20x15x20 20x15x20 20x30x20 20x60x20 20x15x20 20x15x20 20x30x20 20x30x20 20x30x20 20x60x20 20x60x20 20x60x20'
+    test_items = [Package(p, random.randint(1, 5)) for p in test_dimensions.split()]
+    bins, rest, bin_dims = pack_in_bins(test_items, Package('30x80x30'))
+    """
+    print 'test_items:', test_items
+    print 'bins %s:' % len(bins)
+    pp(bins)
+    print 'rest %s: ' % len(rest)
+    pp(rest)
+    print 'bin_dims %s: ' % len(bin_dims)
+    pp(bin_dims)
+    """
+    bin_dim_weight = 0
+    pack_weight = 0
+    for pack, bin_dim in zip(bins, bin_dims):
+        pack_weight += int(bin_dim.weight)
+        bin_dim_weight += sum([int(b.weight) for b in pack])
+        print '%s kg - %s' % (bin_dim.weight, '  '.join([str(p) for p in pack]))
+
+    print '\nTOTAL:'
+    print '%s kg - %s kg' % (pack_weight, bin_dim_weight)
 
 
-import random
-from pprint import pprint as pp
-test_dimensions = '20x60x20 20x15x20 20x15x20 20x30x20 20x60x20 20x15x20 20x15x20 20x30x20 20x30x20 20x30x20 20x60x20 20x60x20 20x60x20'
-test_items = [Package(p, random.randint(1, 5)) for p in test_dimensions.split()]
-bins, rest, bin_dims = pack_in_bins(test_items, Package('30x80x30'))
-print 'bins %s:' % len(bins)
-pp(bins)
-print 'rest %s: ' % len(rest)
-pp(rest)
-print 'bin_dims %s: ' % len(bin_dims)
-pp(bin_dims)
+if __name__ == '__main__':
+    test()
