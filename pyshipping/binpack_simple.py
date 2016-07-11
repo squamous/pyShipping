@@ -40,6 +40,7 @@ Copyright (c) 2010 HUDORA. All rights reserved.
 import time
 import random
 from itertools import permutations
+from package import Package, pack_in_bins
 bin_package_dimensions = []
 
 
@@ -192,7 +193,7 @@ def binpack(packages, bin=None, iterlimit=5000):
         bin = Package("600x400x400")
     global bin_package_dimensions
     bins, rest = allpermutations(packages, bin, iterlimit)
-    bin_package_dimensions = bin_package_dimensions[len(bin_package_dimensions) - len(bins) - 1:]
+    bin_package_dimensions = bin_package_dimensions[len(bin_package_dimensions) - len(bins):]
     try:
         while True:
             bin_package_dimensions.remove((0, 0, 0))
@@ -220,9 +221,14 @@ def test():
     print vorher, nachher, float(nachher) / vorher * 100
 
 
-if __name__ == '__main__':
-    import cProfile
-    cProfile.run('test()')
-
-
-from pyshipping.package import Package
+import random
+from pprint import pprint as pp
+test_dimensions = '20x60x20 20x15x20 20x15x20 20x30x20 20x60x20 20x15x20 20x15x20 20x30x20 20x30x20 20x30x20 20x60x20 20x60x20 20x60x20'
+test_items = [Package(p, random.randint(1, 5)) for p in test_dimensions.split()]
+bins, rest, bin_dims = pack_in_bins(test_items, Package('30x80x30'))
+print 'bins %s:' % len(bins)
+pp(bins)
+print 'rest %s: ' % len(rest)
+pp(rest)
+print 'bin_dims %s: ' % len(bin_dims)
+pp(bin_dims)

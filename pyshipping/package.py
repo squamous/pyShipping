@@ -235,14 +235,10 @@ def pack_in_bins(kartons, versandkarton):
 
     You provide it with a bin size and a list of Package Objects to be bined. Returns a list of lists
     representing the bins with the binned Packages and a list of Packages too big for binning.
-
-    >>> pack_in_bins([Package('135x200x250'), Package('170x380x390'), Package('485x280x590'), Package('254x171x368'), Package('201x172x349'), Package('254x171x368')], \
-                     Package('600x400x400'))
-    ([[<Package 250x200x135>, <Package 349x201x172>, <Package 368x254x171>], [<Package 368x254x171>, <Package 390x380x170>]], [<Package 590x485x280>])
     """
 
-    import pyshipping.binpack
-    toobig, packagelist, bins, rest = [], [], [], []
+    import binpack
+    toobig, packagelist, bins, rest, bin_dims = [], [], [], [], []
     for box in sorted(kartons, reverse=True):
         if box not in versandkarton:
             # passt eh nicht
@@ -250,8 +246,8 @@ def pack_in_bins(kartons, versandkarton):
         else:
             packagelist.append(box)
     if packagelist:
-        bins, rest = pyshipping.binpack.binpack(packagelist, versandkarton)
-    return bins, toobig + rest
+        bins, rest, bin_dims = binpack.binpack(packagelist, versandkarton)
+    return bins, toobig + rest, bin_dims
 
 
 ### Tests

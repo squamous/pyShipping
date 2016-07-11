@@ -46,4 +46,4 @@ if __name__ == '__main__':
 
 
 import time
-from pyshipping.package import Package
+from package import Package
